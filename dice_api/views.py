@@ -1,12 +1,13 @@
 import random
 from django.http import JsonResponse
+from .models import Dice
 
 def roll(request):
   response = {}
-  mode = request.GET.get('mode', 'realistic')
-  if (mode == 'realistic' or mode == ''):
+  mode = request.GET.get("mode", "realistic")
+  if (mode == "realistic" or mode == ""):
     response["dice"] = getRealisticDice()
-  elif (mode == 'independent'):
+  elif (mode == "independent"):
     response["dice"] = getIndependentDice()
   else:
     response["error"] = "Invalid mode"
@@ -18,10 +19,11 @@ def getRealisticDice():
     {"face" : "2", "color" : "blue"},
     {"face" : "3", "color" : "green"},
     {"face" : "4", "color" : "yellow"},
-    {"face" : "reverse", "color" : "any"},
-    {"face" : "double", "color" : "any"}
+    {"face" : "reverse", "color" : "white"},
+    {"face" : "double", "color" : "white"}
   ]
   dice = random.choice(dices)
+  Dice(mode="realistic", face=dice["face"], color=dice["color"]).save()
   return dice
 
 def getIndependentDice():
@@ -31,4 +33,5 @@ def getIndependentDice():
     "face" : random.choice(faces),
     "color" : random.choice(colors)
   }
+  Dice(mode="independent", face=dice["face"], color=dice["color"]).save()
   return dice

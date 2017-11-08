@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+class Dice(models.Model):
+    mode = models.CharField(max_length=16)
+    face = models.CharField(max_length=16)
+    color = models.CharField(max_length=16)
