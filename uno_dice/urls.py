@@ -16,8 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from dice_api.views import roll
+from dice_web.views import index
 
 urlpatterns = [
+    url(r'^$', index, name='index'),
     url(r'^api/', roll, name='roll'),
     url(r'^admin/', admin.site.urls),
 ]
