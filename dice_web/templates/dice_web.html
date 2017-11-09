@@ -1,9 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test Main Page</title>
+  <title>Uno Dice™</title>
+  <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+    }
+    h1 {
+      font-size: 3em;
+      overflow-wrap: break-word;
+    }
+    .wrapper-page {
+      background-color: #2b2b2b;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .dice {
+      background-color: #f2ffd9;
+      height: 40vh;
+      width: 40vh;
+      border-radius: 5%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
-  <p>Test Main Page</p>
+  <div class="wrapper-page">
+    <div class="wrapper-content">
+      <div class="dice">
+        <h1>Click Me!</h1>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript">
+    function getBackgroundColor(color) {
+      var colors = {
+        "white" : "#f2ffd9",
+        "red" : "#e74c3c",
+        "blue" : "#3498db",
+        "green" : "#27ae60",
+        "yellow" : "#f1c40f",
+      }
+      return colors[color];
+    }
+    function getColor(color) {
+      var colors = {
+        "white" : "black",
+        "red" : "white",
+        "blue" : "white",
+        "green" : "white",
+        "yellow" : "black",
+      }
+      return colors[color];
+    }
+    function rollDice() {
+      var request = $.ajax({
+        url: "/api",
+        dataType: "json"
+      });
+      request.done(function () {
+        var dice = request.responseJSON["dice"];
+        $('.dice').html("<h1>" + dice["face"] + "</h1>")
+        $('.dice').css("background-color", getBackgroundColor(dice["color"]));
+        $('.dice').css("color", getColor(dice["color"]));
+      });
+    }
+    function keydownSpacebar(e) {
+      if (e.which == 32) {
+        rollDice();
+      }
+    }
+    $( document ).ready(function() {
+      $('.dice').click(function() {
+        rollDice();
+      })
+      $('body').keydown(keydownSpacebar);
+    });
+  </script>
 </body>
 </html>
