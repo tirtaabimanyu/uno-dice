@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width" />
   <title>Uno Dice™</title>
   <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
   <style>
@@ -19,20 +20,40 @@
       justify-content: center;
       align-items: center;
     }
-    .dice {
-      background-color: #f2ffd9;
+    .wrapper-content {
+      position: relative;
+      overflow: hidden;
+      border-radius: 5%;
       height: 40vh;
       width: 40vh;
-      border-radius: 5%;
+    }
+    .dice {
+      background-color: #f2ffd9;
+      position: absolute;
+      height: 40vh;
+      width: 40vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      text-align: center;
+    }
+    .new-dice {
+      position: absolute;
+      top: -40vh;
+      height: 40vh;
+      width: 40vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
   <div class="wrapper-page">
     <div class="wrapper-content">
+      <div class="new-dice"></div>
       <div class="dice">
         <h1>Click Me!</h1>
       </div>
@@ -67,9 +88,18 @@
       });
       request.done(function () {
         var dice = request.responseJSON["dice"];
-        $('.dice').html("<h1>" + dice["face"] + "</h1>")
-        $('.dice').css("background-color", getBackgroundColor(dice["color"]));
-        $('.dice').css("color", getColor(dice["color"]));
+        $('.new-dice').html("<h1>" + dice["face"] + "</h1>");
+        $('.new-dice').css("background-color", getBackgroundColor(dice["color"]));
+        $('.new-dice').css("color", getColor(dice["color"]));
+        $('.new-dice').css("transition","0.3s");
+        $('.new-dice').css("top","0");
+        setTimeout(function(){
+          $('.dice').html("<h1>" + dice["face"] + "</h1>");
+          $('.dice').css("background-color", getBackgroundColor(dice["color"]));
+          $('.dice').css("color", getColor(dice["color"]));
+          $('.new-dice').css("transition","");
+          $('.new-dice').css("top","-40vh");
+        }, 300)
       });
     }
     function keydownSpacebar(e) {
