@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,6 +23,10 @@
       align-items: center;
     }
     .wrapper-content {
+      display: flex;
+      position: relative;
+    }
+    .wrapper-dice {
       position: relative;
       overflow: hidden;
       border-radius: 5%;
@@ -28,7 +34,7 @@
       width: 40vh;
     }
     .dice {
-      background-color: #f2ffd9;
+      background-color: #ecf0f1;
       position: absolute;
       height: 40vh;
       width: 40vh;
@@ -36,6 +42,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
+      z-index: 2;
     }
     .new-dice {
       position: absolute;
@@ -46,16 +53,159 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      z-index: 10;
+    }
+    .setting-dice {
+      background-color: #27ae60;
+      position: absolute;
+      left: -40vh;
+      height: 40vh;
+      width: 40vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .toolbar {
+      position: absolute;
+      left: calc(40vh + 10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .setting-button {
+      margin-bottom: 10px;
+      height: 50px;
+      width: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10%;
+      background-color: #ecf0f1;
+    }
+    .icon {
+      height: 70%;
+      width: 70%;
+    }
+    .no-margin {
+      margin: 0;
+    }
+    .left {
+      text-align: left;
+    }
+
+    label {
+      width: 200px;
+      border-radius: 3px;
+      border: 1px solid #D1D3D4
+    }
+
+    /* hide input */
+    input.radio:empty {
+      margin-left: -999px;
+    }
+
+    /* style label */
+    input.radio:empty ~ label {
+      position: relative;
+      float: left;
+      line-height: 2.5em;
+      text-indent: 3.25em;
+      margin-top: 10px;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      background-color: #ecf0f1;
+    }
+
+    input.radio:empty ~ label:before {
+      position: absolute;
+      display: block;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      content: '';
+      width: 2.5em;
+      background: #D1D3D4;
+      border-radius: 3px 0 0 3px;
+    }
+
+    /* toggle hover */
+    input.radio:hover:not(:checked) ~ label:before {
+      content:'\2714';
+      text-indent: .9em;
+      color: #C2C2C2;
+    }
+
+    input.radio:hover:not(:checked) ~ label {
+      color: #888;
+    }
+
+    /* toggle on */
+    input.radio:checked ~ label:before {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      content:'\2714';
+      text-indent: .2em;
+      color: #9CE2AE;
+      background-color: #4DCB6D;
+    }
+
+    input.radio:checked ~ label {
+      color: #777;
+    }
+
+    /* radio focus */
+    input.radio:focus ~ label:before {
+      box-shadow: 0 0 0 3px #999;
+    }
+
+    @media only screen and (max-width: 767px) {
+      .wrapper-content {
+        flex-direction: column;
+        justify-content: left;
+        align-items: left;
+      }
+      .toolbar {
+        top: calc(40vh + 10px);
+        left: 0;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrapper-page">
     <div class="wrapper-content">
-      <div class="new-dice"></div>
-      <div class="dice">
-        <h1>Click Me!</h1>
+      <div class="wrapper-dice">
+        <div class="setting-dice">
+          <div>
+            <h1 class="no-margin">Mode:</h1>
+            <form class="left" id="dice-form">
+              <div>
+                <input type="radio" name="dice-mode" id="radio1" class="radio" value="realistic" checked>
+                <label for="radio1">Realistic</label>
+              </div>
+              <div>
+                <input type="radio" name="dice-mode" id="radio2" class="radio" value="independent">
+                <label for="radio2">Independent</label>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="new-dice"></div>
+        <div class="dice">
+          <h1>Click Me!</h1>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="setting-button">
+          <img class="icon" src="{% static 'icons/cog.svg' %}">
+        </div>
       </div>
     </div>
   </div>
@@ -63,7 +213,7 @@
   <script type="text/javascript">
     function getBackgroundColor(color) {
       var colors = {
-        "white" : "#f2ffd9",
+        "white" : "#ecf0f1",
         "red" : "#e74c3c",
         "blue" : "#3498db",
         "green" : "#27ae60",
@@ -82,25 +232,53 @@
       return colors[color];
     }
     function rollDice() {
+      var mode = $('input[name=dice-mode]:checked', '#dice-form').val();
+      var url = "/api/?mode=" + mode;
       var request = $.ajax({
-        url: "/api",
+        url: url,
         dataType: "json"
       });
       request.done(function () {
         var dice = request.responseJSON["dice"];
+        $('.new-dice').css("z-index", "2");
+        $('.dice').css("z-index", "1");
         $('.new-dice').html("<h1>" + dice["face"] + "</h1>");
         $('.new-dice').css("background-color", getBackgroundColor(dice["color"]));
         $('.new-dice').css("color", getColor(dice["color"]));
         $('.new-dice').css("transition","0.3s");
         $('.new-dice').css("top","0");
         setTimeout(function(){
+          $('.dice').css("z-index", "2");
+          $('.new-dice').css("z-index", "1");
           $('.dice').html("<h1>" + dice["face"] + "</h1>");
           $('.dice').css("background-color", getBackgroundColor(dice["color"]));
           $('.dice').css("color", getColor(dice["color"]));
           $('.new-dice').css("transition","");
           $('.new-dice').css("top","-40vh");
-        }, 300)
+        }, 300);
       });
+    }
+    function showSetting() {
+      $('.setting-dice').css("z-index", "2");
+      $('.dice').css("z-index", "1");
+      $('.setting-button').html("<img class='icon' src=\"{% static 'icons/cancel.svg' %}\">");
+      $('.setting-dice').css("left", "0");
+      $('.setting-button').unbind('click');
+      $('.setting-button').click(function() {
+        hideSetting();
+      });
+    }
+    function hideSetting() {
+      $('.setting-dice').css("left", "-40vh");
+      $('.setting-button').html("<img class='icon' src=\"{% static 'icons/cog.svg' %}\">");
+      setTimeout(function(){
+        $('.setting-dice').css("z-index", "1");
+        $('.dice').css("z-index", "2");
+        $('.setting-button').unbind('click');
+        $('.setting-button').click(function() {
+          showSetting();
+        });
+      }, 300);
     }
     function keydownSpacebar(e) {
       if (e.which == 32) {
@@ -110,6 +288,9 @@
     $( document ).ready(function() {
       $('.dice').click(function() {
         rollDice();
+      })
+      $('.setting-button').click(function() {
+        showSetting();
       })
       $('body').keydown(keydownSpacebar);
     });
